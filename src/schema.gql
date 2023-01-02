@@ -1,0 +1,82 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+input CreateTodoInput {
+  title: String!
+}
+
+type FindAllTodosResponseDto {
+  User: User!
+  id: Int!
+  title: String!
+  userId: Float!
+}
+
+type FindSingleTodoResponseDto {
+  User: User!
+  id: Int!
+  title: String!
+  userId: Float!
+}
+
+type LoginResponseDto {
+  access_token: String!
+  refresh_token: String!
+  user: User!
+}
+
+input LoginUserInputDto {
+  password: String!
+  username: String!
+}
+
+type Mutation {
+  createTodo(createTodoInput: CreateTodoInput!): Todo!
+  login(loginUserInputDto: LoginUserInputDto!): LoginResponseDto!
+  removeTodo(id: Int!): Todo!
+  signup(signupUserInputDto: SignupUserInputDto!): User!
+  updateTodo(updateTodoInput: UpdateTodoInput!): UpdateSingleTodoResponseDto!
+}
+
+type Query {
+  refresh: RefreshTokenResponseDto!
+  todo(id: Int!): FindSingleTodoResponseDto!
+  todos: [FindAllTodosResponseDto!]!
+  user(username: String!): User!
+  users: [User!]!
+}
+
+type RefreshTokenResponseDto {
+  access_token: String!
+  refresh_token: String!
+  user: User!
+}
+
+input SignupUserInputDto {
+  password: String!
+  username: String!
+}
+
+type Todo {
+  id: Int!
+  title: String!
+  userId: Float!
+}
+
+type UpdateSingleTodoResponseDto {
+  User: User!
+  id: Int!
+  title: String!
+  userId: Float!
+}
+
+input UpdateTodoInput {
+  id: Int!
+  title: String!
+}
+
+type User {
+  id: Int!
+  username: String!
+}
