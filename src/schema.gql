@@ -2,15 +2,26 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+input CreateMeetingInput {
+  name: String!
+  todoId: Float!
+}
+
 input CreateTodoInput {
+  meetingNames: [String!]
   title: String!
 }
 
 type FindAllTodosResponseDto {
   User: User!
   id: Int!
+  meetings: [Meeting!]!
   title: String!
   userId: Float!
+}
+
+input FindSingleMeetingInputDto {
+  id: Int!
 }
 
 type FindSingleTodoResponseDto {
@@ -31,15 +42,26 @@ input LoginUserInputDto {
   username: String!
 }
 
+type Meeting {
+  id: Int!
+  name: String!
+  todoId: Float!
+}
+
 type Mutation {
+  createMeeting(createMeetingInput: CreateMeetingInput!): Meeting!
   createTodo(createTodoInput: CreateTodoInput!): Todo!
   login(loginUserInputDto: LoginUserInputDto!): LoginResponseDto!
+  removeSingleMeeting(removeMeetingInputDto: RemoveMeetingInputDto!): Meeting!
   removeTodo(id: Int!): Todo!
   signup(signupUserInputDto: SignupUserInputDto!): User!
+  updateSingleMeeting(updateMeetingInput: UpdateMeetingInput!): Meeting!
   updateTodo(updateTodoInput: UpdateTodoInput!): UpdateSingleTodoResponseDto!
 }
 
 type Query {
+  findSingleMeeting(findSingleMeetingInputDto: FindSingleMeetingInputDto!): Meeting!
+  meetings: [Meeting!]!
   refresh: RefreshTokenResponseDto!
   todo(id: Int!): FindSingleTodoResponseDto!
   todos: [FindAllTodosResponseDto!]!
@@ -53,6 +75,10 @@ type RefreshTokenResponseDto {
   user: User!
 }
 
+input RemoveMeetingInputDto {
+  id: Int!
+}
+
 input SignupUserInputDto {
   password: String!
   username: String!
@@ -60,8 +86,15 @@ input SignupUserInputDto {
 
 type Todo {
   id: Int!
+  meetings: [Meeting!]
   title: String!
   userId: Float!
+}
+
+input UpdateMeetingInput {
+  id: Int!
+  name: String
+  todoId: Float
 }
 
 type UpdateSingleTodoResponseDto {
@@ -73,10 +106,12 @@ type UpdateSingleTodoResponseDto {
 
 input UpdateTodoInput {
   id: Int!
+  meetingNames: [String!]
   title: String!
 }
 
 type User {
   id: Int!
+  todos: [Todo!]!
   username: String!
 }

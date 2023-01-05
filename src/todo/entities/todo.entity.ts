@@ -1,4 +1,5 @@
 import { ObjectType, Field, Int } from '@nestjs/graphql';
+import { Meeting } from '../../meeting/entities/meeting.entity';
 
 @ObjectType()
 export class Todo {
@@ -10,4 +11,7 @@ export class Todo {
 
   @Field()
   userId: number;
+
+  @Field(() => [Meeting], { nullable: true })
+  meetings?: [Meeting];
 }

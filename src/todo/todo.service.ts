@@ -11,10 +11,35 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class TodoService {
   constructor(private prismaService: PrismaService) {}
   async create(createTodoInput: CreateTodoInput, userId: number) {
-    return await this.prismaService.todo.create({
+    const createdTodo = await this.prismaService.todo.create({
       data: {
         title: createTodoInput.title,
         userId,
+      },
+    });
+    if (!createdTodo) throw new BadRequestException();
+    if (
+      createTodoInput.meetingNames &&
+      createTodoInput.meetingNames.length >= 1
+    ) {
+      const newMeetingsArray = [];
+      createTodoInput.meetingNames.map((value) => {
+        newMeetingsArray.push({
+          name: value,
+          todoId: createdTodo.id,
+        });
+      });
+      const newTodoWithMeetings = await this.prismaService.meeting.createMany({
+        data: newMeetingsArray,
+      });
+      if (!newTodoWithMeetings) throw new BadRequestException();
+    }
+    return await this.prismaService.todo.findUnique({
+      where: {
+        id: createdTodo.id,
+      },
+      include: {
+        meetings: true,
       },
     });
   }
@@ -23,6 +48,7 @@ export class TodoService {
     const todos = await this.prismaService.todo.findMany({
       include: {
         User: true,
+        meetings: true,
       },
     });
     if (!todos || todos.length == 0) throw new BadRequestException();

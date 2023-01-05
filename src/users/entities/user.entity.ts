@@ -1,4 +1,5 @@
 import { ObjectType, Field, Int } from '@nestjs/graphql';
+import { Todo } from 'src/todo/entities/todo.entity';
 
 @ObjectType()
 export class User {
@@ -7,4 +8,7 @@ export class User {
 
   @Field()
   username: string;
+
+  @Field(() => [Todo])
+  todos: [Todo];
 }

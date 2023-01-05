@@ -2,7 +2,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Request } from 'express';
+import * as argon2 from 'argon2';
 
 @Injectable()
 export class CustomRefreshTokenStrategy extends PassportStrategy(
@@ -27,7 +27,7 @@ export class CustomRefreshTokenStrategy extends PassportStrategy(
       throw new UnauthorizedException();
     }
     return {
-      sub: payload.sub,
+      id: payload.sub,
       username: payload.username,
     };
   }

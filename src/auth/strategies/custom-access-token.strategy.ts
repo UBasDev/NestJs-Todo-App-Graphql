@@ -25,8 +25,9 @@ export class CustomAccessTokenStrategy extends PassportStrategy(
     if (user.username !== payload.username || !user)
       throw new UnauthorizedException();
     return {
-      sub: payload.sub,
+      id: payload.sub,
       username: payload.username,
+      role: payload.role,
     };
   }
 }

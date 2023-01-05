@@ -18,6 +18,7 @@ export class AuthResolver {
   @Mutation(() => LoginResponseDto) //Mutationın döndüreceği valuenin türünü belirttik
   @UseGuards(CustomGqlAuthGuard)
   login(
+    @GetUserDecorator('local') user: User,
     @Args('loginUserInputDto') loginUserInputDto: LoginUserInputDto,
     @Context() context,
   ) {

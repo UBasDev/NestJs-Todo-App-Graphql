@@ -1,5 +1,9 @@
 import { LoginUserInputDto } from './dto/login-user-input.dto';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  BadRequestException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
@@ -24,15 +28,22 @@ export class AuthService {
     return null;
   }
   async login(user: User) {
-    const access_token = await this.getAccessToken(user.id, user.username);
-    const refresh_token = await this.getRefreshToken(user.id, user.username);
     const isUserExists = await this.prismaService.user.findFirst({
       where: {
         id: user.id,
         username: user.username,
       },
+      include: {
+        Role: true,
+      },
     });
     if (!isUserExists) throw new UnauthorizedException();
+    const access_token = await this.getAccessToken(
+      user.id,
+      user.username,
+      isUserExists.Role.name,
+    );
+    const refresh_token = await this.getRefreshToken(user.id, user.username);
     await this.usersService.updateWhenLogin(user.id, refresh_token);
     return {
       access_token,
@@ -43,29 +54,36 @@ export class AuthService {
 
   async signup(signupUserInputDto: SignupUserInputDto) {
     const user = await this.usersService.findOne(signupUserInputDto.username);
-    if (user) throw new Error('User already exists!');
+    if (user) throw new BadRequestException('User already exists!');
     return await this.usersService.create({
       username: signupUserInputDto.username,
       password: signupUserInputDto.password,
     });
   }
 
-  async refresh(refreshToken: string, user: User) {
-    console.log(user);
+  async refresh(refreshToken: string, user: any) {
     const currentUser = await this.prismaService.user.findUnique({
       where: {
         id: user.id,
       },
+      include: {
+        Role: true,
+      },
     });
+    if (!currentUser) throw new UnauthorizedException();
     const isRefreshTokenMatch = await argon2.verify(
       currentUser.hashedRefreshToken,
       refreshToken,
     );
     if (!isRefreshTokenMatch) throw new UnauthorizedException();
-    const newAccessToken = await this.getAccessToken(user.id, user.username);
+    const newAccessToken = await this.getAccessToken(
+      user.id,
+      user.username,
+      currentUser.Role.name,
+    );
     const newRefreshToken = await this.getRefreshToken(user.id, user.username);
     const newHashedRefreshToken = await argon2.hash(newRefreshToken);
-    await this.prismaService.user.update({
+    const updatedUser = await this.prismaService.user.update({
       where: {
         id: user.id,
       },
@@ -73,6 +91,7 @@ export class AuthService {
         hashedRefreshToken: newHashedRefreshToken,
       },
     });
+    if (!updatedUser) throw new BadRequestException();
     return {
       access_token: newAccessToken,
       refresh_token: newRefreshToken,
@@ -80,11 +99,12 @@ export class AuthService {
     };
   }
 
-  getAccessToken = async (sub: number, username: string) => {
+  getAccessToken = async (sub: number, username: string, roleName: string) => {
     const access_token = await this.jwtService.signAsync(
       {
         sub,
         username,
+        role: roleName,
       },
       {
         algorithm: 'HS512',

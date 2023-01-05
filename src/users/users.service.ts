@@ -16,12 +16,21 @@ export class UsersService {
       data: {
         username: user.username,
         password: user.password,
+        roleId: 2, //This is default roleId
       },
     });
     return user;
   }
   async findAll() {
-    const users = await this.prismaService.user.findMany();
+    const users = await this.prismaService.user.findMany({
+      include: {
+        todos: {
+          include: {
+            meetings: true,
+          },
+        },
+      },
+    });
     if (!users || users.length == 0) throw new BadRequestException();
     return users;
   }
@@ -32,7 +41,6 @@ export class UsersService {
         username: username,
       },
     });
-    if (!user) throw new BadRequestException();
     return user;
   }
 

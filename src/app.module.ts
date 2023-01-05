@@ -6,6 +6,7 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { AuthModule } from './auth/auth.module';
 import { TodoModule } from './todo/todo.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { MeetingModule } from './meeting/meeting.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { PrismaModule } from './prisma/prisma.module';
     AuthModule,
     TodoModule,
     PrismaModule,
+    MeetingModule,
   ],
   controllers: [],
   providers: [],
