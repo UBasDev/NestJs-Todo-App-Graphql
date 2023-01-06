@@ -20,12 +20,13 @@ export class AuthService {
   ) {}
   async validateUser(username: string, password: string): Promise<any> {
     const user = await this.usersService.findOne(username);
+    if (!user) throw new BadRequestException();
     const isPasswordMatch = await argon2.verify(user.password, password);
     if (user && isPasswordMatch) {
       const { password, ...restOfUser } = user;
       return restOfUser;
     }
-    return null;
+    return false;
   }
   async login(user: User) {
     const isUserExists = await this.prismaService.user.findFirst({
